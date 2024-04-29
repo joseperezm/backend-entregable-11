@@ -1,4 +1,4 @@
-# (WIP) Implementación de logger
+# Implementación de logger
 
 ## Consigna
 
