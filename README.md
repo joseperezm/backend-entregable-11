@@ -4,7 +4,7 @@
 
 - Basado en nuestro proyecto principal, implementar un logger.
 
-Aspectos a incluir:
+### Aspectos a incluir
 
 - Primero, definir un sistema de niveles que tenga la siguiente prioridad (de menor a mayor):
 
@@ -12,11 +12,11 @@ Aspectos a incluir:
 
 - Después implementar un logger para desarrollo y un logger para producción: 
 
-El logger de desarrollo deberá loggear a partir del nivel debug y sólo en consola.
+* El logger de desarrollo deberá loggear a partir del nivel debug y sólo en consola.
 
-El logger del entorno productivo debera loggear sólo a partir de nivel info.
+* El logger del entorno productivo debera loggear sólo a partir de nivel info.
 
-El logger deberá enviar en un transporte de archivos a partir del nivel de error en un nombre “errors.log”.
+* El logger deberá enviar en un transporte de archivos a partir del nivel de error en un nombre “errors.log”.
 
 - Agregar logs de valor alto en los puntos importantes de tu servidor (errores, advertencias, etc) y modificar los console.log() habituales que tenemos para que muestren todo a partir de winston.
 
