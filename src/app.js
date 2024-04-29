@@ -10,6 +10,7 @@ const productsRouter = require("./routes/products.router.js");
 const cartsRouter = require("./routes/carts.router.js");
 const viewsRouter = require("./routes/views.router.js");
 const sessionsRouter = require('./routes/sessions.router.js');
+const debugRouter = require('./routes/debug.router.js');
 const initializePassport = require("./config/passport.config.js");
 const config = require('./config/config.js');
 const UserModel = require('./dao/models/user-mongoose.js');
@@ -91,7 +92,7 @@ app.engine("handlebars", exphbs.engine({
 
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
-
+app.use('/loggerTest', debugRouter);
 app.use("/api", productsRouter);
 app.use("/api", cartsRouter);
 app.use("/", viewsRouter);
