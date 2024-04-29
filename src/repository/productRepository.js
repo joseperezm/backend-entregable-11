@@ -3,6 +3,7 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 const { CastError } = require('mongoose').Error;
 const Product = require('../dao/models/products-mongoose');
 const errorCodes = require('../utils/errorCodes');
+const logger = require("../config/logger.js");
 
 Product.schema.plugin(mongoosePaginate);
 
@@ -13,9 +14,10 @@ class ProductRepository {
         try {
             const product = new Product(productData);
             await product.save();
+            logger.info("Product successfully added");
             return product;
         } catch (error) {
-            console.error('Error adding product:', error);
+            logger.error('Error adding product:', error);
             throw { code: 'INTERNAL_SERVER_ERROR', original: error };
         }
     }
@@ -79,7 +81,7 @@ class ProductRepository {
                 };
             }
         } catch (error) {
-            console.error('Error obteniendo los productos:', error);
+            logger.error('Error obtaining products', error);
             throw { code: 'INTERNAL_SERVER_ERROR', original: error };
         }
     }
@@ -89,10 +91,10 @@ class ProductRepository {
             return await Product.findById(productId);
         } catch (error) {
             if (error instanceof mongoose.Error.CastError && error.path === '_id') {
-                console.error('Incorrect product ID:', error);
+                logger.warn('Incorrect product ID:', error);
                 throw { code: 'INVALID_PARAM', original: error };
             } else {
-                console.error('Error getting product by ID:', error);
+                logger.error('Error getting product by ID:', error);
                 throw { code: 'INTERNAL_SERVER_ERROR', original: error };
             }
         }
@@ -103,10 +105,10 @@ class ProductRepository {
             return await Product.findByIdAndUpdate(productId, productData, { new: true });
         } catch (error) {
             if (error instanceof mongoose.Error.CastError && error.path === '_id') {
-                console.error('Incorrect product ID:', error);
+                logger.warn('Incorrect product ID:', error);
                 throw { code: 'INVALID_PARAM', original: error };
             } else {
-                console.error('Error updating product:', error);
+                logger.error('Error updating product:', error);
                 throw { code: 'INTERNAL_SERVER_ERROR', original: error };
             }
         }
@@ -114,13 +116,14 @@ class ProductRepository {
 
     async deleteProduct(productId) {
         try {
+            logger.info('Product deleted');
             return await Product.findByIdAndDelete(productId);
         } catch (error) {
             if (error instanceof mongoose.Error.CastError && error.path === '_id') {
-                console.error('Incorrect product ID:', error);
+                logger.warn('Incorrect product ID:', error);
                 throw { code: 'INVALID_PARAM', original: error };
             } else {
-                console.error('Error deleting product:', error);
+                logger.error('Error deleting product:', error);
                 throw { code: 'INTERNAL_SERVER_ERROR', original: error };
             }
         }

@@ -1,5 +1,6 @@
 const passport = require('passport');
 const createUserDto = require('../dto/userDto');
+const logger = require("../config/logger");
 
 exports.registrationInstructions = (req, res) => {
     const registrationInstructions = {
@@ -26,7 +27,6 @@ exports.register = (req, res, next) => {
         if (err) { return next(err); }
 
         if (!user) {
-            req.flash('error', 'Falló el registro.');
             return res.redirect('/register');
         }
 
@@ -71,25 +71,25 @@ exports.login = (req, res, next) => {
         };    
         req.session.user = user;    
         const userName = `${user.first_name} ${user.last_name}`;
-        console.log(`Inicio de sesión local para usuario: ${userName}`);
+        logger.info(`Inicio de sesión local para usuario: ${userName}`);
         req.flash('success', `¡Inicio de sesión exitoso para: ${userName}!`);
         return res.redirect('/products');
     }    
 
     passport.authenticate('login', (err, user, info) => {
         if (err) {
-            console.log('Error al iniciar sesión:', err);
+            logger.error('Error al iniciar sesión:', err);
             req.flash('error', 'Error al iniciar sesión...');
             return next(err);
         }
         if (!user) {
-            console.log('Intento de inicio de sesión fallido para:', email);
+            logger.warn(`Intento de inicio de sesión fallido para: ${email}`);
             req.flash('error', 'Usuario o contraseña incorrectos...');
             return res.redirect('/login'); 
         }
         req.logIn(user, (err) => {
             if (err) {
-                console.log('Error al iniciar sesión:', err);
+                logger.error('Error al iniciar sesión:', err);
                 req.flash('error', 'Error al iniciar sesión...');
                 return next(err);
             }
@@ -102,7 +102,7 @@ exports.login = (req, res, next) => {
                 role: user.role
             };
             const userName = `${user.first_name} ${user.last_name}`;
-            console.log(`Inicio de sesión local para usuario: ${userName}`);
+            logger.info(`Inicio de sesión local para usuario: ${userName}`);
             req.flash('success', `¡Inicio de sesión exitoso para: ${userName}!`);
             return res.redirect('/products');
         });
@@ -114,19 +114,19 @@ exports.logout = (req, res) => {
 
     req.logout(function(err) {
         if (err) {
-            console.log('Error al cerrar sesión:', err);
+            logger.error('Error al cerrar sesión:', err);
             req.flash('error', 'Error al cerrar sesión...');
             return res.redirect('/profile');
         }
 
         req.session.destroy((err) => {
             if (err) {
-                console.log('Error al destruir la sesión:', err);
+                logger.error('Error al destruir la sesión:', err);
                 req.flash('error', 'Error al destruir sesión...');
                 return res.redirect('/profile');
             }            
             res.clearCookie('connect.sid', { path: '/' });
-            console.log(`Cierre de sesión exitoso para el usuario: ${userName}`);            
+            logger.info(`Cierre de sesión exitoso para el usuario: ${userName}`);            
             res.redirect('/login');
         });
     });
@@ -137,13 +137,16 @@ exports.githubAuth = passport.authenticate("github", { scope: ["user:email"] });
 exports.githubCallback = (req, res, next) => {
     passport.authenticate("github", { failureRedirect: "/login" }, (err, user, info) => {
         if (err) {
+            logger.error(`Error durante la autenticación con GitHub: ${err}`);
             return next(err);
         }
         if (!user) {
+            logger.warn("Inicio de sesión fallido con GitHub: No se pudo obtener el usuario.");
             return res.redirect('/login');
         }
         req.logIn(user, (err) => {
             if (err) {
+                logger.error(`Error al iniciar sesión después de la autenticación con GitHub: ${err}`);
                 return next(err);
             }
             
@@ -159,7 +162,7 @@ exports.githubCallback = (req, res, next) => {
             };
             req.session.login = true;
             
-            console.log(`Inicio de sesión desde GitHub para usuario: ${userName}`);
+            logger.info(`Inicio de sesión desde GitHub para usuario: ${userName}`);
             req.flash('success', `¡Inicio de sesión con GitHub exitoso para: ${userName}!`);
             res.redirect("/products");
         });
@@ -171,13 +174,16 @@ exports.googleAuth = passport.authenticate('google', { scope: ['profile', 'email
 exports.googleCallback = (req, res, next) => {
     passport.authenticate("google", { failureRedirect: "/login" }, (err, user, info) => {
         if (err) {
+            logger.error(`Error durante la autenticación con Google: ${err}`);
             return next(err);
         }
         if (!user) {
+            logger.warn("Inicio de sesión fallido con Google: No se pudo obtener el usuario.");
             return res.redirect('/login');
         }
         req.logIn(user, (err) => {
             if (err) {
+                logger.error(`Error al iniciar sesión después de la autenticación con Google: ${err}`);
                 return next(err);
             }
             const userName = user ? `${user.first_name} ${user.last_name}` : 'Desconocido';
@@ -192,7 +198,7 @@ exports.googleCallback = (req, res, next) => {
             };
             req.session.login = true;
 
-            console.log(`Inicio de sesión desde Google para usuario: ${userName}`);
+            logger.info(`Inicio de sesión desde Google para usuario: ${userName}`);
             req.flash('success', `¡Inicio de sesión con Google exitoso para: ${userName}!`);
             res.redirect("/products");
         });

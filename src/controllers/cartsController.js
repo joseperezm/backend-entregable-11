@@ -1,12 +1,14 @@
 const cartService = require('../services/cartService');
 const errorCodes = require('../utils/errorCodes');
+const logger = require("../config/logger");
 
 exports.createCart = async (req, res, next) => {
     try {
         const cart = await cartService.createCart();
         res.status(201).json({ cid: cart._id, message: "Carrito creado correctamente" });
-    } catch (error) {
-        console.error("Error al crear el carrito: ", error);
+        logger.info(`Carrito creado correctamente con ID: ${req.params.cid}`);
+        } catch (error) {
+        logger.error("Error al crear el carrito: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -16,7 +18,7 @@ exports.getAllCarts = async (req, res, next) => {
         const carts = await cartService.getAllCarts();
         res.json(carts);
     } catch (error) {
-        console.error("Error al obtener los carritos: ", error);
+        logger.error("Error al obtener los carritos: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -30,7 +32,7 @@ exports.getCart = async (req, res, next) => {
             next({ code: 'NOT_FOUND', message: "Carrito no encontrado" });
         }
     } catch (error) {
-        console.error("Error al obtener el carrito por ID: ", error);
+        logger.error("Error al obtener el carrito por ID: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -47,7 +49,7 @@ exports.addToCart = async (req, res, next) => {
             next({ code: 'NOT_FOUND', message });
         }
     } catch (error) {
-        console.error("Error al agregar producto al carrito: ", error);
+        logger.error("Error al agregar producto al carrito: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -64,7 +66,7 @@ exports.updateCartProducts = async (req, res, next) => {
             next({ code: 'NOT_FOUND', message: "Carrito no encontrado" });
         }
     } catch (error) {
-        console.error("Error al actualizar el carrito: ", error);
+        logger.error("Error al actualizar el carrito: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -81,7 +83,7 @@ exports.updateProductQuantity = async (req, res, next) => {
             next({ code: 'NOT_FOUND', message: result.message });
         }
     } catch (error) {
-        console.error("Error al actualizar la cantidad del producto en el carrito: ", error);
+        logger.error("Error al actualizar la cantidad del producto en el carrito: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -91,11 +93,12 @@ exports.emptyCart = async (req, res, next) => {
         const success = await cartService.emptyCart(req.params.cid);
         if (success) {
             res.json({ message: "Carrito vaciado correctamente" });
+            logger.info(`Carrito vaciado correctamente con ID: ${req.params.cid}`);
         } else {
             next({ code: 'NOT_FOUND', message: "Carrito no encontrado" });
         }
     } catch (error) {
-        console.error("Error al vaciar el carrito: ", error);
+        logger.error("Error al vaciar el carrito: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -105,11 +108,12 @@ exports.deleteCart = async (req, res, next) => {
         const success = await cartService.deleteCart(req.params.cid);
         if (success) {
             res.json({ message: "Carrito eliminado correctamente" });
+            logger.info(`Carrito eliminado correctamente con ID: ${req.params.cid}`);
         } else {
             next({ code: 'NOT_FOUND', message: "Carrito no encontrado" });
         }
     } catch (error) {
-        console.error("Error al eliminar el carrito: ", error);
+        logger.error("Error al eliminar el carrito: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -123,7 +127,7 @@ exports.deleteProductFromCart = async (req, res, next) => {
             next({ code: 'NOT_FOUND', message });
         }
     } catch (error) {
-        console.error("Error al eliminar producto del carrito: ", error);
+        logger.error("Error al eliminar producto del carrito: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };
@@ -134,6 +138,7 @@ exports.finalizePurchase = async (req, res, next) => {
     try {
         const result = await cartService.finalizePurchase(cartId, userEmail);
         if (result.failedProducts.length > 0) {
+            logger.info(`Compra parcial con carrito ID: ${req.params.cid}`);
             res.status(206).json({
                 success: true,
                 message: "Compra parcialmente exitosa",
@@ -142,6 +147,7 @@ exports.finalizePurchase = async (req, res, next) => {
                 failedProducts: result.failedProducts
             });
         } else {
+            logger.info(`Compra exitosa con carrito ID: ${req.params.cid}`);
             res.status(200).json({
                 success: true,
                 message: "Compra finalizada con éxito",
@@ -150,7 +156,7 @@ exports.finalizePurchase = async (req, res, next) => {
             });
         }
     } catch (error) {
-        console.error("Error al finalizar la compra: ", error);
+        logger.error("Error al finalizar la compra: ", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };

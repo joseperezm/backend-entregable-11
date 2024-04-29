@@ -4,6 +4,7 @@ const Cart = require('../dao/models/carts-mongoose');
 const Product = require('../dao/models/products-mongoose');
 const Ticket = require('../dao/models/ticket-mongoose');
 const errorCodes = require('../utils/errorCodes');
+const logger = require("../config/logger");
 
 class CartRepository {
     constructor() {}
@@ -14,8 +15,8 @@ class CartRepository {
             await cart.save();
             return cart;
         } catch (error) {
-            console.error('Error creating the cart:', error);
-            const customError = new Error('Error creating the cart');
+            logger.error('Error creando el carrito:', error);
+            const customError = new Error('Error creando el carrito');
             customError.code = 'INTERNAL_SERVER_ERROR';
             throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
         }
@@ -25,14 +26,14 @@ class CartRepository {
         try {
             const cart = await Cart.findById(cartId);
             if (!cart) {
-                console.log('Cart not found');
-                return { success: false, message: 'Cart not found', cart: null };
+                logger.info('Carrito no encontrado');
+                return { success: false, message: 'Carrito no encontrado', cart: null };
             }
     
             const product = await Product.findById(productId);
             if (!product) {
-                console.log('Product not found');
-                return { success: false, message: 'Product not found', cart: null };
+                logger.info('Producto0 no encontrado');
+                return { success: false, message: 'Producto no encontrado', cart: null };
             }
     
             const existingProductIndex = cart.products.findIndex(item => item.productId.equals(productId));
@@ -44,16 +45,16 @@ class CartRepository {
             }
     
             await cart.save();
-            return { success: true, message: 'Product added to cart successfully', cart: cart };
+            return { success: true, message: 'Producto agregado exitosamente al carrito', cart: cart };
         } catch (error) {
             if (error instanceof CastError) {
-                console.error('Incorrect ID:', error);
-                const customError = new Error('Incorrect cart or product ID');
+                logger.warning('ID incorrecto:', error);
+                const customError = new Error('ID de producto o carrito incorrecto');
                 customError.code = 'BAD_REQUEST';
                 throw { code: 'BAD_REQUEST', original: customError };
             } else {
-                console.error('Error adding product to cart:', error);
-                const customError = new Error('Error adding product to cart');
+                logger.error('Error agregando el producto al carrito:', error);
+                const customError = new Error('Error agregando el producto al carrito');
                 customError.code = 'INTERNAL_SERVER_ERROR';
                 throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
             }
@@ -65,7 +66,7 @@ class CartRepository {
             const carts = await Cart.find(); 
             return carts;
         } catch (error) {
-            console.error('Error obteniendo todos los carritos:', error);
+            logger.error('Error obteniendo todos los carritos:', error);
             const customError = new Error('Error obteniendo todos los carritos');
             customError.code = 'INTERNAL_SERVER_ERROR';
             throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
@@ -76,21 +77,21 @@ class CartRepository {
         try {
             const cart = await Cart.findById(cartId).populate('products.productId');
             if (!cart) {
-                console.log('Cart not found');
-                const customError = new Error('Cart not found');
+                logger.info('Carrito no encontrado');
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
             return cart;
         } catch (error) {
             if (error instanceof CastError && error.path === '_id') {
-                console.error('Incorrect cart ID:', error);
-                const customError = new Error('Incorrect cart ID');
+                logger.warn('ID incorrecto:', error);
+                const customError = new Error('ID incorrecto');
                 customError.code = 'BAD_REQUEST';
                 throw { code: 'BAD_REQUEST', original: customError };
             } else {
-                console.error('Error getting the cart:', error);
-                const customError = new Error('Error getting the cart');
+                logger.error('Error obteniendo el carrito:', error);
+                const customError = new Error('Error obteniendo el carrito');
                 customError.code = 'INTERNAL_SERVER_ERROR';
                 throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
             }
@@ -101,8 +102,8 @@ class CartRepository {
         try {
             const cart = await Cart.findById(cartId);
             if (!cart) {
-                console.log('Cart not found');
-                const customError = new Error('Cart not found');
+                logger.info('Carrito no encontrado');
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
@@ -111,13 +112,13 @@ class CartRepository {
             return true;
         } catch (error) {
             if (error instanceof CastError) {
-                console.error('Incorrect ID:', error);
-                const customError = new Error('Incorrect cart ID');
+                logger.warn('ID incorrecto:', error);
+                const customError = new Error('ID incorrecto');
                 customError.code = 'BAD_REQUEST';
                 throw { code: 'BAD_REQUEST', original: customError };
             } else {
-                console.error('Error deleting the cart:', error);
-                const customError = new Error('Error deleting the cart');
+                logger.error('Error eliminando el carrito:', error);
+                const customError = new Error('Error eliminando el carrito');
                 customError.code = 'INTERNAL_SERVER_ERROR';
                 throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
             }
@@ -128,8 +129,8 @@ class CartRepository {
         try {
             const cart = await Cart.findById(cartId);
             if (!cart) {
-                console.log('Cart not found');
-                const customError = new Error('Cart not found');
+                logger.info('Carrito no encontrado');
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
@@ -144,21 +145,21 @@ class CartRepository {
                 }
     
                 await cart.save();
-                return { success: true, message: 'Product removed from cart successfully', cart: cart };
+                return { success: true, message: 'Producto eliminado exitosamente', cart: cart };
             } else {
-                const customError = new Error('Product not found in the cart');
+                const customError = new Error('Producto no encontrado');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
         } catch (error) {
             if (error instanceof CastError) {
-                console.error('Incorrect ID:', error);
-                const customError = new Error('Cart not found');
+                logger.warn('ID incorrecto:', error);
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'BAD_REQUEST';
                 throw { code: 'BAD_REQUEST', original: customError };
             } else {
-                console.error('Error removing product from cart:', error);
-                const customError = new Error('Error removing product from cart');
+                logger.error('Error eliminando producto del carrito:', error);
+                const customError = new Error('Error eliminando producto del carrito');
                 customError.code = 'INTERNAL_SERVER_ERROR';
                 throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
             }
@@ -169,14 +170,14 @@ class CartRepository {
         try {
             const cart = await this.getCart(cartId);
             if (!cart) {
-                const customError = new Error('Cart not found');
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
     
             const productIndex = cart.products.findIndex(p => p.productId.equals(productId));
             if (productIndex === -1) {
-                const customError = new Error('Product not found in the cart');
+                const customError = new Error('Producto no encontrado en el carrito');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
@@ -191,13 +192,13 @@ class CartRepository {
             return { success: true, cart: cart };
         } catch (error) {
             if (error instanceof CastError) {
-                console.error('Incorrect ID:', error);
-                const customError = new Error('Cart not found');
+                logger.warn('ID incorrecto:', error);
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'BAD_REQUEST';
                 throw { code: 'BAD_REQUEST', original: customError };
             } else {
-                console.error('Error updating product quantity:', error);
-                const customError = new Error('Error updating product quantity');
+                logger.error('Error actualizando cantidad de productos:', error);
+                const customError = new Error('Error actualizando cantidad de productos');
                 customError.code = 'INTERNAL_SERVER_ERROR';
                 throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
             }
@@ -208,7 +209,7 @@ class CartRepository {
         try {
             const cart = await Cart.findById(cartId);
             if (!cart) {
-                const customError = new Error('Cart not found');
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
@@ -224,13 +225,13 @@ class CartRepository {
             return { success: true, cart: cart };
         } catch (error) {
             if (error instanceof CastError) {
-                console.error('Incorrect ID:', error);
-                const customError = new Error('Cart not found');
+                logger.warn('ID incorrecto:', error);
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'BAD_REQUEST';
                 throw { code: 'BAD_REQUEST', original: customError };
             } else {
-                console.error('Error updating the cart with new products:', error);
-                const customError = new Error('Error updating the cart with new products');
+                logger.error('Error actualizando el carrito con nuevos productos:', error);
+                const customError = new Error('Error actualizando el carrito con nuevos productos');
                 customError.code = 'INTERNAL_SERVER_ERROR';
                 throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
             }
@@ -241,8 +242,8 @@ class CartRepository {
         try {
             const cart = await Cart.findById(cartId);
             if (!cart) {
-                console.log('Cart not found');
-                const customError = new Error('Cart not found');
+                logger.info('Carrito no encontrado');
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
@@ -250,16 +251,16 @@ class CartRepository {
             cart.products = [];
     
             await cart.save();
-            return { success: true, message: 'Cart emptied successfully', cart: cart };
+            return { success: true, message: 'Carrito vaciado exitosamente', cart: cart };
         } catch (error) {
             if (error instanceof CastError) {
-                console.error('Incorrect cart ID:', error);
-                const customError = new Error('Incorrect cart ID');
+                logger.warn('ID incorrecto:', error);
+                const customError = new Error('ID incorrecto');
                 customError.code = 'BAD_REQUEST';
                 throw { code: 'BAD_REQUEST', original: customError };
             } else {
-                console.error('Error emptying the cart:', error);
-                const customError = new Error('Error emptying the cart');
+                logger.error('Error vaciando el carrito:', error);
+                const customError = new Error('Error vaciando el carrito');
                 customError.code = 'INTERNAL_SERVER_ERROR';
                 throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
             }
@@ -270,7 +271,7 @@ class CartRepository {
         try {
             const cart = await this.getCart(cartId);
             if (!cart) {
-                const customError = new Error('Cart not found');
+                const customError = new Error('Carrito no encontrado');
                 customError.code = 'NOT_FOUND';
                 throw { code: 'NOT_FOUND', original: customError };
             }
@@ -313,8 +314,8 @@ class CartRepository {
                 ticketId: newTicket ? newTicket._id : null
             };
         } catch (error) {
-            console.error('Error finalizing the purchase:', error);
-            const customError = new Error('Error finalizing the purchase');
+            logger.error('Error finalizando la compra:', error);
+            const customError = new Error('Error finalizando la compra');
             customError.code = 'INTERNAL_SERVER_ERROR';
             throw { code: 'INTERNAL_SERVER_ERROR', original: customError };
         }

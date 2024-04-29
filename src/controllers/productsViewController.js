@@ -1,5 +1,6 @@
 const productService = require('../services/productService');
 const { generateProducts } = require('../utils/mockData');
+const logger = require("../config/logger");
 
 exports.index = async (req, res) => {
     try {
@@ -36,7 +37,7 @@ exports.index = async (req, res) => {
             sort
         });
     } catch (error) {
-        console.error("Error al obtener productos", error);
+        logger.error("Error al obtener productos", error);
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
     }
 };

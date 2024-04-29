@@ -1,6 +1,7 @@
 const productService = require('../services/productService');
 const { generateProductsApi } = require('../utils/mockData');
 const errorCodes = require('../utils/errorCodes');
+const logger = require("../config/logger");
 
 exports.getProducts = async (req, res, next) => {
     const limit = req.query.limit === undefined ? 10 : parseInt(req.query.limit, 10);
@@ -30,6 +31,7 @@ exports.getProducts = async (req, res, next) => {
         });
     } catch (error) {
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
+        logger.error("Error interno", error);
     }
 };
 
@@ -38,11 +40,13 @@ exports.getProductById = async (req, res, next) => {
         const product = await productService.getProductById(req.params.pid);
         if (!product) {
             next({ code: 'NOT_FOUND' });
+            logger.info("Producto no encontrado");
         } else {
             res.json(product);
         }
     } catch (error) {
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
+        logger.error("Error interno", error);
     }
 };
 
@@ -69,7 +73,7 @@ exports.addProduct = async (req, res, next) => {
         }
 
         if (requiredFields.length > 0) {
-            console.log("Faltan campos requeridos con sus tipos:", missingFieldDetails.join(", "));
+            logger.debug("Faltan campos requeridos con sus tipos:", missingFieldDetails.join(", "));
             throw {
                 code: 'MISSING_FIELDS',
                 message: 'Campos requeridos faltantes: ' + missingFieldDetails.join(", "),
@@ -82,6 +86,7 @@ exports.addProduct = async (req, res, next) => {
         res.status(201).json({ id: product._id, message: 'Producto agregado correctamente' });
     } catch (error) {
         next({ code: error.code || 'INTERNAL_SERVER_ERROR', original: error });
+        logger.error("Error interno", error);
     }
 };
 
@@ -91,10 +96,12 @@ exports.updateProduct = async (req, res, next) => {
         if (updatedProduct) {
             res.json({ message: 'Producto actualizado correctamente', product: updatedProduct });
         } else {
+            logger.info("Producto no encontrado");
             next({ code: 'NOT_FOUND' });
         }
     } catch (error) {
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
+        logger.error("Error interno", error);
     }
 };
 
@@ -104,10 +111,12 @@ exports.deleteProduct = async (req, res, next) => {
         if (success) {
             res.status(200).json({ message: 'Producto eliminado correctamente' });
         } else {
+            logger.info("Producto no encontrado");
             next({ code: 'NOT_FOUND' });
         }
     } catch (error) {
         next({ code: 'INTERNAL_SERVER_ERROR', original: error });
+        logger.error("Error interno", error);
     }
 };
 

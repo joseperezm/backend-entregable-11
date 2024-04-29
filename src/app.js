@@ -14,7 +14,8 @@ const initializePassport = require("./config/passport.config.js");
 const config = require('./config/config.js');
 const UserModel = require('./dao/models/user-mongoose.js');
 const errorHandler = require('./middleware/errorHandler.js');
-const errorCodes = require('./utils/errorCodes');
+const errorCodes = require('./utils/errorCodes.js');
+const logger = require('./config/logger.js');
 
 const PORT = config.APP_PORT;
 require("./database.js");
@@ -101,13 +102,24 @@ app.use((req, res, next) => {
     const error = new Error("Not Found");
     error.code = 'NOT_FOUND';
     error.status = errorCodes.NOT_FOUND.statusCode;
+    logger.warn(`Recurso no encontrado: ${req.originalUrl} - IP: ${req.ip} - Error: ${error.message}`);
     next(error);
+});
+
+app.use((err, req, res, next) => {
+    res.status(err.status || 500);
+    if (err.status === 404) {
+        res.redirect(`/error?message=404`);
+    } else {
+        logger.error(`Error en el servidor - ${err.status || 500} - ${err.message} - ${req.originalUrl} - IP: ${req.ip}`);
+        res.render('error', { error: err });
+    }
 });
 
 app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
-    console.log(`Servidor escuchando en el puerto ${PORT}`);
+    logger.debug(`Servidor escuchando en el puerto ${PORT}`);
 });
 //Se borra esto?
 const ProductManagerFs = require("./dao/fs/productManager-fs")
@@ -118,8 +130,10 @@ const productRepositor = new ProductRepositor();
 
 const io = socket(server);
 
+const Message = require('./dao/models/messages-mongoose.js');
+
 io.on("connection", async (socket) => {
-    console.log("Nuevo cliente conectado");
+    logger.info(`Nuevo usuario conectado a socket ${socket.id}`);
 
     socket.emit("products", await productRepositor.getProducts());
 
@@ -132,16 +146,9 @@ io.on("connection", async (socket) => {
         await productRepositor.addProduct(producto);
         io.sockets.emit("products", await productRepositor.getProducts());
     });
-});
-
-const Message = require('./dao/models/messages-mongoose.js');
-
-io.on('connection', (socket) => {
-    console.log('Un usuario se ha conectado');
 
     socket.on('user email provided', (email) => {
-        console.log(`Correo electrónico recibido: ${email}`);
-
+        logger.info(`Correo electrónico recibido: ${email}`);
         Message.find().then(messages => {
             socket.emit('load all messages', messages);
         });
@@ -153,8 +160,11 @@ io.on('connection', (socket) => {
             await message.save();
             io.emit('chat message', data);
         } catch (error) {
-            console.error('Error guardando el mensaje', error);
+            logger.error('Error guardando el mensaje', error);
         }
     });
 
+    socket.on('disconnect', (reason) => {
+        logger.info(`Usuario desconectado de socket ${socket.id}: ${reason}`);
+    });
 });

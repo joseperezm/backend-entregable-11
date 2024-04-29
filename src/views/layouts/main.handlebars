@@ -44,6 +44,7 @@
                 <a class="nav-link" href="/products">Productos</a>
               </li>
               {{#if (eq user.role "admin")}}
+              <div id="admin-flag" style="display: none;"></div>
                 <li class="nav-item">
                   <a class="nav-link" href="/realtimeproducts">Inventario</a>
                 </li>

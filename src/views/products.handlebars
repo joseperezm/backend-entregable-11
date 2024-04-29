@@ -1,38 +1,42 @@
 {{#if messages.success}}
 <div class="alert alert-success mx-5 text-center" role="alert" id="success-message">
-{{messages.success}}
+  {{messages.success}}
 </div>
 {{/if}}
 <h1 class="titulos mt-4">Productos</h1>
 <div class="centrar-botones">
-<div class="btn-group sorting-buttons" role="group" aria-label="Sorting Buttons">
-  <a href="?page=1&sort=asc" class="btn btn-secondary">
-    <i class="bi bi-sort-down-alt"></i> 
-  </a>
-  <a href="?page=1&sort=desc" class="btn btn-secondary">
-    <i class="bi bi-sort-down"></i> 
-  </a>
+  <div class="btn-group sorting-buttons" role="group" aria-label="Sorting Buttons">
+    <a href="?page=1&sort=asc" class="btn btn-secondary">
+      <i class="bi bi-sort-down-alt"></i>
+    </a>
+    <a href="?page=1&sort=desc" class="btn btn-secondary">
+      <i class="bi bi-sort-down"></i>
+    </a>
+  </div>
 </div>
-</div>
-
 <div class="contenedorCards custom-container">
-    {{#each productos}}
-    <div class="card mb-3">
-        <img src="{{this.thumbnails}}" class="card-img-top" alt="{{this.title}}">
-        <div class="card-body">
-            <h5 class="card-title">{{this.title}}</h5>
-            <p class="card-text">{{this.description}}</p>
-            <p class="card-text mt-2">Categoría: {{this.category}}</p>
-            <p class="card-text mt-2">Precio: {{this.price}}</p>
-            <p class="card-text mt-2">Stock: <span class="{{#if this.stock}}text-success{{else}}text-danger{{/if}}">{{this.stock}}</span></p>
-            <div class="quantity-selector">
-            <label for="quantity-{{this._id}}"></label>
-            <input type="number" class="form-control" id="quantity-{{this._id}}" name="quantity" min="1" max="{{this.stock}}" value="1">
-            </div>
-            <button class="btn btn-primary add-to-cart mb-4 mt-4 w-100" data-product-id="{{this._id}}">Añadir a Carrito</button>
-        </div>
+  {{#each productos}}
+  <div class="card mb-3">
+    <img src="{{this.thumbnails}}" class="card-img-top" alt="{{this.title}}">
+    <div class="card-body">
+      <h5 class="card-title">{{this.title}}</h5>
+      <p class="card-text">{{this.description}}</p>
+      <p class="card-text mt-2">Categoría: {{this.category}}</p>
+      <p class="card-text mt-2">Precio: {{this.price}}</p>
+      <p class="card-text mt-2">Stock: <span
+          class="{{#if this.stock}}text-success{{else}}text-danger{{/if}}">{{this.stock}}</span></p>
+      {{#if (eq ../user.role "user")}}
+      <div class="quantity-selector">
+        <label for="quantity-{{this._id}}"></label>
+        <input type="number" class="form-control" id="quantity-{{this._id}}" name="quantity" min="1"
+          max="{{this.stock}}" value="1">
+      </div>
+      <button class="btn btn-primary add-to-cart mb-4 mt-4 w-100" data-product-id="{{this._id}}">Añadir a
+        Carrito</button>
+      {{/if}}
     </div>
-    {{/each}}
+  </div>
+  {{/each}}
 </div>
 
 <nav aria-label="Page navigation">

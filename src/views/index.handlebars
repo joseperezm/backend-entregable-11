@@ -28,6 +28,7 @@
 <hr>
 <div class="container mt-5">
     <h2 class="mb-4">Contacto</h2>
+    {{#if (eq user.role "user")}}
     <h3 class="mb-5">Envíanos un mensaje o visítenos en nuestra tienda.</h3>
     <div class="mb-5">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#chatModal">
@@ -47,6 +48,7 @@
             </div>
         </div>
     </div>
+    {{/if}}
     <div class="ratio ratio-16x9">
         <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3153.8920343776103!2d-122.084249985292!3d37.42206597982132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2sus!4v1597338880736" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-3"></iframe>
     </div>

@@ -50,7 +50,7 @@ const addProduct = () => {
             title: document.getElementById("title").value,
             description: document.getElementById("description").value,
             price: parseFloat(document.getElementById("price").value),
-            thumbnails: document.getElementById("thumbnails").value,
+            thumbnails: document.getElementById("thumbnails").value || "uploads/placeholder.jpg",
             code: document.getElementById("code").value,
             stock: parseInt(document.getElementById("stock").value),
             category: document.getElementById("category").value,

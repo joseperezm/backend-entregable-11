@@ -1,6 +1,6 @@
 function redirectIfLoggedIn(req, res, next) {
     if (req.session.user) {
-        res.redirect('/products'); // O la ruta que prefieras
+        res.redirect('/products');
     } else {
         next();
     }
